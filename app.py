@@ -37,16 +37,8 @@ def scheduled_job():
 
 scheduler.add_job(scheduled_job, "interval", minutes=CHECK_INTERVAL_MIN)
 
-
-_scheduler_started = False
-
-
-@app.before_request
-def _start_scheduler():
-    global _scheduler_started
-    if not _scheduler_started:
-        scheduler.start()
-        _scheduler_started = True
+if not scheduler.running:
+    scheduler.start()
 
 
 @app.route("/")

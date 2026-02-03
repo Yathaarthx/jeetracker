@@ -1,11 +1,11 @@
 :root {
-  --bg: #0a0a0a;
-  --card: #0f0f10;
-  --ink: #f3f3f3;
+  --bg: #09090b;
+  --card: #0f1014;
+  --ink: #f8f8f8;
   --muted: #a1a1aa;
   --accent: #4ade80;
   --danger: #f87171;
-  --line: #202022;
+  --line: #1e1f25;
   --mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
   --sans: "Space Grotesk", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
@@ -17,29 +17,75 @@
 body {
   margin: 0;
   font-family: var(--sans);
-  background: radial-gradient(1200px 800px at 20% -10%, #131313 0%, #0a0a0a 55%);
   color: var(--ink);
+  background: #0a0a0f;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Starfield background */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -100px;
+  background-repeat: repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::before {
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 80px 120px, #fff, transparent),
+    radial-gradient(1px 1px at 150px 200px, #fff, transparent),
+    radial-gradient(1px 1px at 220px 80px, #fff, transparent),
+    radial-gradient(1px 1px at 300px 140px, #fff, transparent),
+    radial-gradient(1px 1px at 400px 220px, #fff, transparent);
+  opacity: 0.18;
+  animation: drift 120s linear infinite;
+}
+
+body::after {
+  background-image:
+    radial-gradient(1px 1px at 40px 60px, #fff, transparent),
+    radial-gradient(1px 1px at 110px 180px, #fff, transparent),
+    radial-gradient(1px 1px at 190px 40px, #fff, transparent),
+    radial-gradient(1px 1px at 260px 200px, #fff, transparent),
+    radial-gradient(1px 1px at 360px 90px, #fff, transparent),
+    radial-gradient(1px 1px at 460px 160px, #fff, transparent);
+  opacity: 0.08;
+  animation: drift 220s linear infinite reverse;
+}
+
+@keyframes drift {
+  from { transform: translateY(0); }
+  to   { transform: translateY(300px); }
 }
 
 .page {
-  max-width: 960px;
-  margin: 32px auto;
-  padding: 0 16px 40px;
+  max-width: 920px;
+  margin: 40px auto;
+  padding: 0 18px 48px;
   display: grid;
-  gap: 20px;
+  gap: 22px;
+  position: relative;
+  z-index: 1;
 }
 
 .card {
-  background: var(--card);
+  background: rgba(15, 16, 20, 0.85);
   border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02);
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
 }
 
 h1, h2 {
-  margin: 0 0 8px;
-  font-weight: 700;
+  margin: 0 0 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
 }
 
 .subtitle {
@@ -56,15 +102,15 @@ h1, h2 {
 
 .status-item {
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 12px;
-  background: #0c0c0e;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #0c0c12;
 }
 
 .label {
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--muted);
 }
 
@@ -73,19 +119,14 @@ h1, h2 {
   font-weight: 600;
 }
 
-.value.yes {
-  color: var(--accent);
-}
-
-.value.no {
-  color: var(--danger);
-}
+.value.yes { color: var(--accent); }
+.value.no  { color: var(--danger); }
 
 .excerpt {
   border: 1px dashed var(--line);
   padding: 12px;
   border-radius: 12px;
-  background: #0c0c0e;
+  background: #0c0c12;
 }
 
 .errors ul,
@@ -107,7 +148,7 @@ h1, h2 {
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #0b0b0d;
+  background: #0b0b10;
 }
 
 .subscribe-row {
@@ -123,7 +164,7 @@ input[type="text"] {
   border-radius: 12px;
   border: 1px solid var(--line);
   font-size: 14px;
-  background: #0a0a0b;
+  background: #0a0a0e;
   color: var(--ink);
 }
 
@@ -163,6 +204,6 @@ input[type="text"] {
 
 @media (max-width: 600px) {
   .page {
-    margin: 16px auto;
+    margin: 18px auto;
   }
 }

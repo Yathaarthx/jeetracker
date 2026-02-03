@@ -56,6 +56,12 @@
 
       <section class="card">
         <h2>Monitoring</h2>
+        <div class="helper">
+          <div class="label">Self-Subscribe (Recommended)</div>
+          <div class="muted">1. Click "Message the Bot" and send any message.</div>
+          <div class="muted">2. The server auto-syncs every 10 minutes.</div>
+          <div class="muted">3. Your chat_id will appear below automatically.</div>
+        </div>
         <form class="subscribe" method="post" action="{{ url_for('subscribe') }}">
           <label class="label" for="email">Manual Add (Optional)</label>
           <div class="subscribe-row">
@@ -66,12 +72,6 @@
         </form>
         <div class="actions">
           <a class="button" href="https://t.me/jee2026trackerbot" target="_blank" rel="noopener">Message the Bot</a>
-        </div>
-        <div class="helper">
-          <div class="label">Self-Subscribe (No Token Needed)</div>
-          <div class="muted">1. Click "Message the Bot" and send any message.</div>
-          <div class="muted">2. The server auto-syncs every 10 minutes (or click "Check Now").</div>
-          <div class="muted">3. Your chat_id will appear in the subscribers list.</div>
         </div>
         <form class="subscribe" method="post" action="{{ url_for('unsubscribe') }}">
           <label class="label" for="email-remove">Remove Telegram Chat</label>
@@ -108,4 +108,5 @@
     </main>
   </body>
 </html>
+
 

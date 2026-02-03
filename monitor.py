@@ -27,6 +27,8 @@ DEFAULT_KEYWORDS = [
     "response sheet link",
 ]
 
+NOTIFY_INTERVAL_MIN = int(os.getenv("NOTIFY_INTERVAL_MIN", "10"))
+
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -40,6 +42,7 @@ def _load_state() -> Dict:
             "last_match": None,
             "last_match_excerpt": None,
             "last_notified": None,
+            "telegram_offset": None,
         }
     with open(STATE_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -140,10 +143,51 @@ def _send_telegram(subject: str, body: str, subscribers: list) -> None:
             continue
 
 
+def _sync_telegram_subscribers(state: Dict) -> list:
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+    if not token:
+        return _load_subscribers()
+
+    url = f"https://api.telegram.org/bot{token}/getUpdates"
+    params = {}
+    if state.get("telegram_offset") is not None:
+        params["offset"] = state["telegram_offset"]
+
+    subscribers = _load_subscribers()
+    try:
+        resp = requests.get(url, params=params, timeout=20)
+        data = resp.json()
+        updates = data.get("result", [])
+    except Exception:
+        return subscribers
+
+    if updates:
+        for update in updates:
+            chat = None
+            if "message" in update:
+                chat = update.get("message", {}).get("chat")
+            elif "my_chat_member" in update:
+                chat = update.get("my_chat_member", {}).get("chat")
+            elif "chat_member" in update:
+                chat = update.get("chat_member", {}).get("chat")
+
+            if chat and "id" in chat:
+                subscribers.append(str(chat["id"]))
+
+        last_update_id = updates[-1].get("update_id")
+        if last_update_id is not None:
+            state["telegram_offset"] = int(last_update_id) + 1
+
+        _save_subscribers(subscribers)
+
+    return subscribers
+
+
 def check_sites() -> Dict:
     urls = _get_env_list("MONITOR_URLS", DEFAULT_URLS)
     keywords = _get_env_list("KEYWORDS", DEFAULT_KEYWORDS)
-    subscribers = _load_subscribers()
+    state = _load_state()
+    subscribers = _sync_telegram_subscribers(state)
 
     texts = []
     errors = []
@@ -157,7 +201,6 @@ def check_sites() -> Dict:
     page_hash = _hash_text(combined) if combined else ""
     matched, excerpt = _find_keywords(combined, keywords)
 
-    state = _load_state()
     changed = page_hash and page_hash != state.get("last_hash")
 
     state["last_hash"] = page_hash
@@ -168,11 +211,30 @@ def check_sites() -> Dict:
         state["last_match_excerpt"] = excerpt
 
     notified = False
-    if matched and state.get("last_notified") is None and subscribers:
-        subject = "JEE Main: Response sheet/answer key update detected"
-        body = "Update detected on monitored pages.\n\n"
-        if excerpt:
-            body += f"Excerpt: {excerpt}\n\n"
+    should_notify = False
+    last_notified = state.get("last_notified")
+    if subscribers:
+        if last_notified is None:
+            should_notify = True
+        else:
+            try:
+                last_dt = datetime.fromisoformat(last_notified)
+                elapsed_min = (datetime.now(timezone.utc) - last_dt).total_seconds() / 60
+                should_notify = elapsed_min >= NOTIFY_INTERVAL_MIN
+            except Exception:
+                should_notify = True
+
+    if should_notify:
+        if matched:
+            subject = "JEE Main: Update detected"
+            body = "Keywords detected on monitored pages.\n\n"
+            if excerpt:
+                body += f"Excerpt: {excerpt}\n\n"
+        else:
+            subject = "JEE Main: No update yet"
+            body = "No keywords detected on monitored pages.\n\n"
+        if errors:
+            body += "Errors:\n" + "\n".join(errors) + "\n\n"
         body += "Sources:\n" + "\n".join(urls)
         _send_telegram(subject, body, subscribers)
         state["last_notified"] = _now_iso()
@@ -191,3 +253,4 @@ def check_sites() -> Dict:
         "subscribers": subscribers,
         "state": state,
     }
+

@@ -57,21 +57,21 @@
       <section class="card">
         <h2>Monitoring</h2>
         <form class="subscribe" method="post" action="{{ url_for('subscribe') }}">
-          <label class="label" for="email">Get Telegram Alerts</label>
+          <label class="label" for="email">Manual Add (Optional)</label>
           <div class="subscribe-row">
             <input id="email" name="email" type="text" placeholder="Telegram chat_id" required />
             <button class="button" type="submit">Subscribe</button>
           </div>
-          <div class="muted">Example: `123456789` (from your bot's getUpdates)</div>
+          <div class="muted">If you already know your chat_id, add it here.</div>
         </form>
         <div class="actions">
           <a class="button" href="https://t.me/jee2026trackerbot" target="_blank" rel="noopener">Message the Bot</a>
         </div>
         <div class="helper">
-          <div class="label">How to get your chat_id</div>
-          <div class="muted">1. Open Telegram and message the bot.</div>
-          <div class="muted">2. Open: `https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates`</div>
-          <div class="muted">3. Copy the number in `message.chat.id`.</div>
+          <div class="label">Self-Subscribe (No Token Needed)</div>
+          <div class="muted">1. Click "Message the Bot" and send any message.</div>
+          <div class="muted">2. The server auto-syncs every 10 minutes (or click "Check Now").</div>
+          <div class="muted">3. Your chat_id will appear in the subscribers list.</div>
         </div>
         <form class="subscribe" method="post" action="{{ url_for('unsubscribe') }}">
           <label class="label" for="email-remove">Remove Telegram Chat</label>
@@ -108,3 +108,4 @@
     </main>
   </body>
 </html>
+
